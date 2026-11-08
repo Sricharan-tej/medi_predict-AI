@@ -1,0 +1,220 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container hero-grid">
+        <div class="hero-content">
+            <h1>Predict Your Health, <span class="text-gradient">Protect Your Future</span></h1>
+            <p>MediPredict AI uses clinical-grade machine learning models to analyze symptoms instantly. Receive high-probability disease assessments, actionable dietary and exercise guidance, and doctor referrals.</p>
+            <div class="hero-buttons">
+                <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-lg"><i class="fa-solid fa-user-plus"></i> Register Free</a>
+                <a href="{{ url_for('auth.login') }}" class="btn btn-outline btn-lg"><i class="fa-solid fa-right-to-bracket"></i> Login Portal</a>
+            </div>
+            <div class="hero-stats">
+                <div class="stat-item">
+                    <span class="stat-number">377</span>
+                    <span class="stat-label">Symptom Identifiers</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">86</span>
+                    <span class="stat-label">Disease Profiles</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">100%</span>
+                    <span class="stat-label">Private & Secure</span>
+                </div>
+            </div>
+        </div>
+        <div class="hero-image-container">
+            <!-- Floating glassmorphic card representing prediction UI -->
+            <div class="floating-card hero-widget">
+                <div class="widget-header">
+                    <i class="fa-solid fa-shield-halved"></i>
+                    <span>Diagnostic Engine Active</span>
+                </div>
+                <div class="widget-body">
+                    <div class="pulse-circle-container">
+                        <div class="pulse-circle"></div>
+                        <i class="fa-solid fa-user-doctor doctor-pulse-icon"></i>
+                    </div>
+                    <div class="widget-text">
+                        <h3>MediPredict Core v1.5</h3>
+                        <p>Analyze symptom clusters and match risk probability scores dynamically.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- About Section -->
+<section id="about" class="about-section bg-light">
+    <div class="container text-center max-w-800">
+        <span class="badge">About Our System</span>
+        <h2>Next-Generation Medical Screening</h2>
+        <p class="section-lead">MediPredict AI is a diagnostic screening assistant built using modern data science pipelines. By leveraging statistical patterns in large-scale clinical symptom matrices, our system identifies health risks and charts optimal recovery paths.</p>
+    </div>
+    
+    <div class="container grid grid-3 gap-30 mt-40">
+        <div class="card about-card text-center">
+            <div class="icon-box primary-bg"><i class="fa-solid fa-microscope"></i></div>
+            <h3>Data-Driven Insights</h3>
+            <p>Our model isolates non-obvious correlations between complex symptom clusters for early screening.</p>
+        </div>
+        <div class="card about-card text-center">
+            <div class="icon-box secondary-bg"><i class="fa-solid fa-user-nurse"></i></div>
+            <h3>Structured Precaution</h3>
+            <p>Learn clinical precaution stages, dietary adjustments, and home exercises for every condition.</p>
+        </div>
+        <div class="card about-card text-center">
+            <div class="icon-box accent-bg"><i class="fa-solid fa-file-pdf"></i></div>
+            <h3>Exportable PDF Reports</h3>
+            <p>Generate clean, professional health summaries that you can save or share with your doctor.</p>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section id="features" class="features-section">
+    <div class="container grid grid-2 gap-50 items-center">
+        <div class="features-visual">
+            <div class="grid grid-2 gap-20">
+                <div class="card feature-grid-card">
+                    <i class="fa-solid fa-magnifying-glass text-primary"></i>
+                    <h4>Symptom Search</h4>
+                    <p>Fuzzy-search and select from 377 symptoms.</p>
+                </div>
+                <div class="card feature-grid-card">
+                    <i class="fa-solid fa-chart-line text-secondary"></i>
+                    <h4>Confidence Index</h4>
+                    <p>See numerical prediction match percentages.</p>
+                </div>
+                <div class="card feature-grid-card">
+                    <i class="fa-solid fa-apple-whole text-success"></i>
+                    <h4>Diet Guidelines</h4>
+                    <p>Nutrition recommendations for specific illnesses.</p>
+                </div>
+                <div class="card feature-grid-card">
+                    <i class="fa-solid fa-heart-pulse text-danger"></i>
+                    <h4>Specialist Referrals</h4>
+                    <p>Instant suggestions on which medical specialist to consult.</p>
+                </div>
+            </div>
+        </div>
+        <div class="features-content">
+            <span class="badge">Application Features</span>
+            <h2>Complete Clinical Screening Toolkit</h2>
+            <p>MediPredict AI is designed from the ground up to support users with highly detailed health overviews. Beyond binary diagnosis, we provide a complete spectrum of preventative medical guidance.</p>
+            <ul class="check-list">
+                <li><i class="fa-solid fa-circle-check"></i> <b>Secure Session Portal:</b> All predictions are saved securely in your personal account history.</li>
+                <li><i class="fa-solid fa-circle-check"></i> <b>Analytical Admin Dashboards:</b> Administrators can monitor system usage, register records, and view disease trends.</li>
+                <li><i class="fa-solid fa-circle-check"></i> <b>Export & Print:</b> Generate print-ready PDF summaries on the fly.</li>
+            </ul>
+        </div>
+    </div>
+</section>
+
+<!-- How It Works Section -->
+<section id="how-it-works" class="how-it-works bg-light">
+    <div class="container text-center max-w-800">
+        <span class="badge">Workflow</span>
+        <h2>How It Works</h2>
+        <p class="section-lead">Get clear health assessments in three simple steps.</p>
+    </div>
+    
+    <div class="container grid grid-3 gap-30 mt-40 step-container">
+        <div class="step-card">
+            <div class="step-number">1</div>
+            <h3>Input Symptoms</h3>
+            <p>Search and select your active symptoms from our comprehensive list of 377 clinical identifiers.</p>
+        </div>
+        <div class="step-card">
+            <div class="step-number">2</div>
+            <h3>AI Core Processing</h3>
+            <p>Our fine-tuned classifier executes in real-time, calculating class probabilities across 86 diseases.</p>
+        </div>
+        <div class="step-card">
+            <div class="step-number">3</div>
+            <h3>Get Recommendations</h3>
+            <p>Read detailed precautions, custom diets, exercise plans, specialist suggestions, and download your report.</p>
+        </div>
+    </div>
+</section>
+
+<!-- Testimonials Section -->
+<section class="testimonials-section">
+    <div class="container text-center max-w-800">
+        <span class="badge">Reviews</span>
+        <h2>What Our Users Say</h2>
+        <p class="section-lead">Real feedback from patients and medical professionals using our prototype.</p>
+    </div>
+    
+    <div class="container grid grid-3 gap-30 mt-40">
+        <div class="card testimonial-card">
+            <div class="stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
+            <p>"MediPredict AI is incredibly useful for early checks. The dietary suggestions helped me prepare a recovery plan for my sinusitis before seeing a doctor."</p>
+            <div class="author-info">
+                <strong>Sarah Jenkins</strong>
+                <span>Home Patient</span>
+            </div>
+        </div>
+        <div class="card testimonial-card">
+            <div class="stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
+            <p>"As a clinical nurse, I appreciate the simplicity of selecting multiple symptoms. The PDF generation makes it simple for patients to communicate symptoms."</p>
+            <div class="author-info">
+                <strong>David Miller, RN</strong>
+                <span>Healthcare Professional</span>
+            </div>
+        </div>
+        <div class="card testimonial-card">
+            <div class="stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
+            <p>"The admin panel's analytics charts allow easy tracking of seasonal disease spikes. Highly recommended prototype for public health analytics."</p>
+            <div class="author-info">
+                <strong>Dr. Helen Chen</strong>
+                <span>Epidemiology Researcher</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Contact Section -->
+<section id="contact" class="contact-section bg-light">
+    <div class="container grid grid-2 gap-50 items-center">
+        <div class="contact-info">
+            <span class="badge">Get in Touch</span>
+            <h2>Have Questions or Feedback?</h2>
+            <p>We are continuously improving the MediPredict AI engine. Contact our development and medical research team with any inquiries, partnership requests, or feedback.</p>
+            <div class="info-items">
+                <div class="info-item">
+                    <i class="fa-solid fa-location-dot"></i>
+                    <span>AI Research Hub, Tech Park, Suite 404</span>
+                </div>
+                <div class="info-item">
+                    <i class="fa-solid fa-envelope"></i>
+                    <span>contact@medipredict.ai</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card contact-form-card">
+            <h3>Send a Message</h3>
+            <form action="#" method="POST" onsubmit="event.preventDefault(); alert('Message sent successfully! Thank you for contacting us.');">
+                <div class="form-group">
+                    <label for="contact-name">Full Name</label>
+                    <input type="text" id="contact-name" placeholder="John Doe" required>
+                </div>
+                <div class="form-group">
+                    <label for="contact-email">Email Address</label>
+                    <input type="email" id="contact-email" placeholder="john@example.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="contact-message">Message</label>
+                    <textarea id="contact-message" rows="4" placeholder="Your message or feedback..." required></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">Send Message</button>
+            </form>
+        </div>
+    </div>
+</section>
+{% endblock %}

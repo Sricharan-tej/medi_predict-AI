@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediPredict AI – Disease Prediction and Health Recommendations</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    
+    {% block head %}{% endblock %}
+</head>
+<body>
+
+    <!-- Header & Navbar -->
+    <header class="main-header">
+        <div class="container navbar-container">
+            <a href="/" class="logo-link">
+                <div class="logo">
+                    <i class="fa-solid fa-heart-pulse"></i>
+                    <span>MediPredict <span class="ai-badge">AI</span></span>
+                </div>
+            </a>
+            
+            <button class="menu-toggle" id="menuToggle" aria-label="Toggle Navigation">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+            
+            <nav class="main-nav" id="mainNav">
+                <ul>
+                    {% if is_logged_in %}
+                        <li><a href="{{ url_for('prediction.dashboard') }}" class="nav-item"><i class="fa-solid fa-gauge-high"></i> Dashboard</a></li>
+                        <li><a href="{{ url_for('prediction.predict') }}" class="nav-item"><i class="fa-solid fa-stethoscope"></i> Predict Symptoms</a></li>
+                        <li><a href="{{ url_for('history.view_history') }}" class="nav-item"><i class="fa-solid fa-clock-rotate-left"></i> History</a></li>
+                        {% if current_role == 'admin' %}
+                            <li><a href="{{ url_for('admin.admin_dashboard') }}" class="nav-item admin-link"><i class="fa-solid fa-user-shield"></i> Admin Panel</a></li>
+                        {% endif %}
+                        <li class="nav-user-item">
+                            <span class="user-greeting"><i class="fa-solid fa-user"></i> {{ current_username }}</span>
+                        </li>
+                        <li><a href="{{ url_for('auth.logout') }}" class="btn btn-outline btn-sm"><i class="fa-solid fa-right-from-bracket"></i> Logout</a></li>
+                    {% else %}
+                        <li><a href="/#about" class="nav-item">About</a></li>
+                        <li><a href="/#features" class="nav-item">Features</a></li>
+                        <li><a href="/#how-it-works" class="nav-item">How It Works</a></li>
+                        <li><a href="{{ url_for('auth.login') }}" class="nav-item"><i class="fa-solid fa-right-to-bracket"></i> Login</a></li>
+                        <li><a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-sm">Get Started</a></li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flash-container container">
+                {% for category, message in messages %}
+                    <div class="flash-message flash-{{ category }}" id="flash-{{ loop.index }}">
+                        <span class="flash-text">
+                            {% if category == 'success' %}
+                                <i class="fa-solid fa-circle-check"></i>
+                            {% elif category == 'danger' %}
+                                <i class="fa-solid fa-circle-exclamation"></i>
+                            {% elif category == 'warning' %}
+                                <i class="fa-solid fa-triangle-exclamation"></i>
+                            {% else %}
+                                <i class="fa-solid fa-circle-info"></i>
+                            {% endif %}
+                            {{ message }}
+                        </span>
+                        <button class="flash-close" onclick="closeFlash('flash-{{ loop.index }}')">&times;</button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <!-- Main Content Block -->
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="main-footer">
+        <div class="container footer-grid">
+            <div class="footer-brand">
+                <div class="logo">
+                    <i class="fa-solid fa-heart-pulse"></i>
+                    <span>MediPredict <span class="ai-badge">AI</span></span>
+                </div>
+                <p class="footer-desc">Empowering healthcare with advanced symptom screening and personalized wellness recommendations.</p>
+                <div class="social-icons">
+                    <a href="#" aria-label="Twitter"><i class="fa-brands fa-twitter"></i></a>
+                    <a href="#" aria-label="LinkedIn"><i class="fa-brands fa-linkedin"></i></a>
+                    <a href="#" aria-label="GitHub"><i class="fa-brands fa-github"></i></a>
+                </div>
+            </div>
+            
+            <div class="footer-links">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="/#about">About Us</a></li>
+                    <li><a href="/#features">Key Features</a></li>
+                    <li><a href="/#how-it-works">How It Works</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-links">
+                <h3>Patient Portal</h3>
+                <ul>
+                    {% if is_logged_in %}
+                        <li><a href="{{ url_for('prediction.dashboard') }}">Your Dashboard</a></li>
+                        <li><a href="{{ url_for('prediction.predict') }}">Predict Symptoms</a></li>
+                        <li><a href="{{ url_for('history.view_history') }}">Prediction History</a></li>
+                    {% else %}
+                        <li><a href="{{ url_for('auth.login') }}">Login</a></li>
+                        <li><a href="{{ url_for('auth.register') }}">Register</a></li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+        
+        <div class="footer-bottom container">
+            <p>&copy; 2026 MediPredict AI. All rights reserved. Designed for informational and educational purposes only.</p>
+        </div>
+    </footer>
+
+    <!-- Global JS -->
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

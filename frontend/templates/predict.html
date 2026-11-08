@@ -1,0 +1,139 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<div class="prediction-wrapper container">
+    <!-- Header Page Description -->
+    <div class="page-title-section text-center max-w-800">
+        <span class="badge"><i class="fa-solid fa-stethoscope"></i> Diagnostic Screen</span>
+        <h2>Symptom-Based Disease Prediction</h2>
+        <p class="section-lead">Select your active symptoms from the searchable catalog below. Our AI classifier will cross-reference symptom coordinates against 86 clinical disease vectors in real-time.</p>
+    </div>
+    
+    <div class="prediction-grid mt-40">
+        <!-- Left Column: Input Form -->
+        <div class="card form-card">
+            <div class="card-header border-bottom">
+                <h3><i class="fa-solid fa-square-plus"></i> Symptom Inputs</h3>
+            </div>
+            
+            <div class="card-body">
+                <!-- Search Input with Dropdown -->
+                <div class="form-group relative">
+                    <label for="symptomSearch">Search Symptoms</label>
+                    <div class="search-input-wrapper">
+                        <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                        <input type="text" id="symptomSearch" autocomplete="off" placeholder="Type a symptom... (e.g. headache, fever, chest pain)">
+                    </div>
+                    <!-- Dropdown for autocomplete list -->
+                    <div id="symptomsDropdown" class="dropdown-menu"></div>
+                </div>
+                
+                <!-- Tags Container showing selected symptoms -->
+                <div class="form-group">
+                    <label>Selected Symptoms (<span id="symptomCount">0</span> selected)</label>
+                    <div id="selectedSymptoms" class="tags-container">
+                        <!-- Dynamic tags will appear here -->
+                        <span class="no-symptoms-placeholder">No symptoms selected. Start typing in the search box above.</span>
+                    </div>
+                </div>
+                
+                <!-- Submission Form (AJAX driven or standard fallback) -->
+                <form id="predictionForm" action="{{ url_for('prediction.predict') }}" method="POST">
+                    <!-- Target for hidden checkboxes or inputs if submitted via form post -->
+                    <div id="hiddenInputsContainer" style="display:none;"></div>
+                    
+                    <button type="submit" id="submitBtn" class="btn btn-primary btn-block btn-lg" disabled>
+                        <span id="btnText"><i class="fa-solid fa-circle-play"></i> Run Diagnostic Scan</span>
+                        <span id="btnLoading" class="hidden"><i class="fa-solid fa-spinner fa-spin"></i> Analyzing Symptom Pattern...</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Right Column: Results Console -->
+        <div class="card console-card" id="resultsConsole">
+            <!-- Initial state: Waiting for inputs -->
+            <div class="console-placeholder text-center" id="consolePlaceholder">
+                <i class="fa-solid fa-heart-pulse diagnostic-pulse-icon"></i>
+                <h3>Diagnostic Console Ready</h3>
+                <p>Add symptoms in the form and click "Run Diagnostic Scan" to trigger the machine learning classifier.</p>
+            </div>
+            
+            <!-- Result Output Panel (Hidden until prediction runs) -->
+            <div class="console-result-panel hidden" id="consoleResultPanel">
+                <div class="result-header text-center">
+                    <span class="diagnostic-success-badge"><i class="fa-solid fa-circle-check"></i> Analysis Complete</span>
+                    <h2 id="resultDisease">Disease Name</h2>
+                    
+                    <!-- Confidence Meter -->
+                    <div class="confidence-console-indicator">
+                        <span>Prediction Match Probability</span>
+                        <div class="progress-bar-bg-lg">
+                            <div id="resultConfidenceBar" class="progress-bar-fill-lg" style="width: 0%"></div>
+                        </div>
+                        <h4 id="resultConfidenceText">0%</h4>
+                    </div>
+                </div>
+                
+                <!-- Results Grids -->
+                <div class="result-body mt-20">
+                    <div class="result-grid">
+                        <div class="result-info-box">
+                            <h5><i class="fa-solid fa-file-medical"></i> Condition Description</h5>
+                            <p id="resultDesc">Clinical description here...</p>
+                        </div>
+                        
+                        <div class="result-info-box">
+                            <h5><i class="fa-solid fa-user-doctor"></i> Suggested Specialist</h5>
+                            <p id="resultSpecialist" class="bold text-primary">Specialist Name</p>
+                        </div>
+                    </div>
+                    
+                    <div class="result-grid mt-20">
+                        <div class="result-info-box">
+                            <h5><i class="fa-solid fa-shield-halved"></i> Actionable Precautions</h5>
+                            <ul id="resultPrecautions" class="precaution-list">
+                                <!-- list items -->
+                            </ul>
+                        </div>
+                        
+                        <div class="result-info-box">
+                            <h5><i class="fa-solid fa-circle-info"></i> Possible Causes</h5>
+                            <ul id="resultCauses" class="causes-list">
+                                <!-- list items -->
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="result-grid mt-20">
+                        <div class="result-info-box">
+                            <h5><i class="fa-solid fa-apple-whole"></i> Dietary Guidelines</h5>
+                            <p id="resultDiet">Foods list...</p>
+                        </div>
+                        
+                        <div class="result-info-box">
+                            <h5><i class="fa-solid fa-person-running"></i> Recommended Exercises</h5>
+                            <p id="resultExercises">Exercises list...</p>
+                        </div>
+                    </div>
+                    
+                    <!-- PDF Action Button -->
+                    <div class="result-actions mt-30 text-center">
+                        <a href="#" id="downloadReportBtn" class="btn btn-outline btn-lg"><i class="fa-solid fa-file-pdf"></i> Download PDF Health Report</a>
+                        <button type="button" id="clearBtn" class="btn btn-outline btn-lg btn-danger ml-10"><i class="fa-solid fa-arrows-rotate"></i> Reset Scan</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<!-- Exposing the list of symptoms safely to JS -->
+<script>
+    const ALL_SYMPTOMS = {{ symptoms_list | tojson }};
+</script>
+<!-- Import client-side logic -->
+<script src="{{ url_for('static', filename='js/prediction.js') }}"></script>
+{% endblock %}

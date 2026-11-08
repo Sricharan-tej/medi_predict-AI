@@ -1,0 +1,326 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<div class="admin-wrapper container">
+    <!-- Header Page Description -->
+    <div class="page-title-section text-center max-w-800">
+        <span class="badge"><i class="fa-solid fa-user-shield"></i> Administration</span>
+        <h2>System Control Panel & Analytics</h2>
+        <p class="section-lead">Monitor application performance, review aggregate prediction statistics, inspect disease distribution vectors, and manage system user credentials.</p>
+    </div>
+    
+    <!-- Admin Statistics Grid -->
+    <div class="stats-grid mt-30" id="adminStatsGrid">
+        <div class="card stat-card border-left-primary">
+            <div class="stat-card-body">
+                <div class="stat-info">
+                    <span class="stat-label">Total Users (Registered)</span>
+                    <h2 class="stat-value" id="statTotalUsers"><i class="fa-solid fa-spinner fa-spin"></i></h2>
+                </div>
+                <div class="stat-icon text-primary"><i class="fa-solid fa-users"></i></div>
+            </div>
+        </div>
+        
+        <div class="card stat-card border-left-secondary">
+            <div class="stat-card-body">
+                <div class="stat-info">
+                    <span class="stat-label">Total Diagnostic Scans</span>
+                    <h2 class="stat-value" id="statTotalPredictions"><i class="fa-solid fa-spinner fa-spin"></i></h2>
+                </div>
+                <div class="stat-icon text-secondary"><i class="fa-solid fa-clipboard-check"></i></div>
+            </div>
+        </div>
+        
+        <div class="card stat-card border-left-success">
+            <div class="stat-card-body">
+                <div class="stat-info">
+                    <span class="stat-label">Top Predicted Illness</span>
+                    <h2 class="stat-value text-ellipsis" style="font-size: 20px; max-width: 170px;" id="statTopDisease"><i class="fa-solid fa-spinner fa-spin"></i></h2>
+                </div>
+                <div class="stat-icon text-success"><i class="fa-solid fa-chart-pie"></i></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Charts Section -->
+    <div class="charts-section mt-30">
+        <div class="grid grid-2 gap-30">
+            <!-- Chart 1: Disease Distribution -->
+            <div class="card chart-card">
+                <div class="card-header border-bottom">
+                    <h3><i class="fa-solid fa-chart-pie"></i> Disease Prediction Distribution</h3>
+                </div>
+                <div class="card-body chart-container-body">
+                    <div class="canvas-wrapper">
+                        <canvas id="diseaseChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Chart 2: Monthly Trends -->
+            <div class="card chart-card">
+                <div class="card-header border-bottom">
+                    <h3><i class="fa-solid fa-chart-line"></i> Diagnostic Trends Over Time</h3>
+                </div>
+                <div class="card-body chart-container-body">
+                    <div class="canvas-wrapper">
+                        <canvas id="trendChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- User Management Table -->
+    <div class="card mt-30 user-management-card">
+        <div class="card-header border-bottom">
+            <h3><i class="fa-solid fa-users-gear"></i> User Database Management</h3>
+        </div>
+        
+        <div class="card-body padding-zero overflow-x">
+            <table class="data-table" id="usersTable">
+                <thead>
+                    <tr>
+                        <th>User ID</th>
+                        <th>Username</th>
+                        <th>Email Address</th>
+                        <th>Access Role</th>
+                        <th>Created Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="usersTableBody">
+                    <tr>
+                        <td colspan="6" class="text-center padding-30">
+                            <i class="fa-solid fa-spinner fa-spin fa-2x text-primary"></i>
+                            <p class="mt-10">Fetching registered users database...</p>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    loadStats();
+    loadCharts();
+    loadUsers();
+});
+
+// Load stats widgets
+function loadStats() {
+    fetch('/admin/dashboard')
+    .then(res => res.json())
+    .then(data => {
+        document.getElementById('statTotalUsers').innerText = data.total_users;
+        document.getElementById('statTotalPredictions').innerText = data.total_predictions;
+        document.getElementById('statTopDisease').innerText = data.top_diseases.length > 0 ? data.top_diseases[0].disease : "None";
+        document.getElementById('statTopDisease').title = data.top_diseases.length > 0 ? data.top_diseases[0].disease : "None";
+    })
+    .catch(err => {
+        console.error("Error loading admin stats:", err);
+    });
+}
+
+// Load Chart.js analytics
+function loadCharts() {
+    fetch('/admin/analytics')
+    .then(res => res.json())
+    .then(data => {
+        // Render Disease distribution chart
+        const diseaseCtx = document.getElementById('diseaseChart').getContext('2d');
+        const distData = data.disease_distribution;
+        
+        // Take top 5 and group rest as 'Others' if too long
+        let labels = distData.labels;
+        let chartData = distData.data;
+        
+        if (labels.length > 6) {
+            labels = distData.labels.slice(0, 5);
+            chartData = distData.data.slice(0, 5);
+            
+            const othersCount = distData.data.slice(5).reduce((a, b) => a + b, 0);
+            if (othersCount > 0) {
+                labels.push("Others");
+                chartData.push(othersCount);
+            }
+        }
+        
+        new Chart(diseaseCtx, {
+            type: 'doughnut',
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: chartData,
+                    backgroundColor: [
+                        '#1e3a8a', // Deep Blue
+                        '#0d9488', // Teal
+                        '#3b82f6', // Bright Blue
+                        '#10b981', // Emerald
+                        '#f59e0b', // Amber
+                        '#94a3b8'  // Slate Grey
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                        labels: {
+                            font: {
+                                family: 'Outfit',
+                                size: 12
+                            }
+                        }
+                    }
+                }
+            }
+        });
+        
+        // Render Prediction Trend Line Chart
+        const trendCtx = document.getElementById('trendChart').getContext('2d');
+        const trendData = data.prediction_trend;
+        
+        // Fallback labels if empty
+        const trendLabels = trendData.labels.length > 0 ? trendData.labels : ["No Data"];
+        const trendCounts = trendData.data.length > 0 ? trendData.data : [0];
+        
+        new Chart(trendCtx, {
+            type: 'line',
+            data: {
+                labels: trendLabels,
+                datasets: [{
+                    label: 'Predictions Completed',
+                    data: trendCounts,
+                    borderColor: '#0d9488',
+                    backgroundColor: 'rgba(13, 148, 136, 0.1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.3,
+                    pointBackgroundColor: '#1e3a8a'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            precision: 0
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        });
+    })
+    .catch(err => {
+        console.error("Error loading charts data:", err);
+    });
+}
+
+// Load registered users table
+function loadUsers() {
+    fetch('/admin/users')
+    .then(res => res.json())
+    .then(data => {
+        const tableBody = document.getElementById('usersTableBody');
+        tableBody.innerHTML = '';
+        
+        if (data.users && data.users.length > 0) {
+            data.users.forEach(user => {
+                const tr = document.createElement('tr');
+                tr.id = `user-row-${user.id}`;
+                
+                const roleBadge = user.role === 'admin' 
+                    ? '<span class="badge badge-admin-sm"><i class="fa-solid fa-user-shield"></i> Admin</span>' 
+                    : '<span class="badge badge-user-sm"><i class="fa-solid fa-user"></i> Patient</span>';
+                
+                // Disable delete button for the user themselves or other admins
+                const deleteButton = user.role === 'admin' 
+                    ? '<button class="btn btn-outline btn-xs" disabled title="Admin accounts cannot be deleted"><i class="fa-solid fa-ban"></i> Blocked</button>'
+                    : `<button onclick="deleteUser(${user.id}, '${user.username}')" class="btn btn-outline btn-xs btn-danger" title="Delete User"><i class="fa-solid fa-user-minus"></i> Delete</button>`;
+                
+                tr.innerHTML = `
+                    <td><strong>USR-${user.id}</strong></td>
+                    <td>${user.username}</td>
+                    <td>${user.email}</td>
+                    <td>${roleBadge}</td>
+                    <td>${user.created_at}</td>
+                    <td>${deleteButton}</td>
+                `;
+                tableBody.appendChild(tr);
+            });
+        } else {
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="6" class="text-center padding-30">
+                        <i class="fa-solid fa-circle-exclamation fa-2x text-warning"></i>
+                        <p class="mt-10">No users found.</p>
+                    </td>
+                </tr>
+            `;
+        }
+    })
+    .catch(err => {
+        console.error("Error loading users:", err);
+        const tableBody = document.getElementById('usersTableBody');
+        tableBody.innerHTML = `
+            <tr>
+                <td colspan="6" class="text-center padding-30 text-danger">
+                    <i class="fa-solid fa-triangle-exclamation fa-2x"></i>
+                    <p class="mt-10">Failed to retrieve users: ${err.message}</p>
+                </td>
+            </tr>
+        `;
+    });
+}
+
+// Administrative user deletion
+function deleteUser(id, username) {
+    if (confirm(`CAUTION: Are you sure you want to permanently delete the user "${username}"? This will delete all of their diagnostic histories and reports from the database. This action is irreversible.`)) {
+        fetch(`/admin/users/${id}`, {
+            method: 'DELETE',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                // Remove row and reload stats
+                const row = document.getElementById(`user-row-${id}`);
+                if (row) {
+                    row.classList.add('fade-out');
+                    setTimeout(() => {
+                        row.remove();
+                        loadStats();
+                    }, 500);
+                }
+            } else {
+                alert(`Error: ${data.error || "Could not delete user"}`);
+            }
+        })
+        .catch(err => {
+            console.error("Error deleting user:", err);
+            alert("An error occurred. Check connection.");
+        });
+    }
+}
+</script>
+{% endblock %}

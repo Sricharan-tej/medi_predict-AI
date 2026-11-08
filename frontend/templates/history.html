@@ -1,0 +1,125 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<div class="history-wrapper container">
+    <!-- Header Page Description -->
+    <div class="page-title-section text-center max-w-800">
+        <span class="badge"><i class="fa-solid fa-clock-rotate-left"></i> Patient Records</span>
+        <h2>Your Diagnostic History Logs</h2>
+        <p class="section-lead">Review previous clinical assessments, search past scans by symptom name or disease flags, and download PDF summaries for medical consultations.</p>
+    </div>
+    
+    <!-- Search & Filter Bar -->
+    <div class="card history-filters-card mt-30">
+        <form action="{{ url_for('history.view_history') }}" method="GET" class="filter-form">
+            <div class="search-input-wrapper flex-grow">
+                <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                <input type="text" name="search" id="historySearch" placeholder="Search predictions by symptom or condition... (e.g. flu, head pain)" value="{{ search }}">
+            </div>
+            <button type="submit" class="btn btn-primary"><i class="fa-solid fa-filter"></i> Apply Filter</button>
+            {% if search %}
+                <a href="{{ url_for('history.view_history') }}" class="btn btn-outline btn-danger"><i class="fa-solid fa-circle-xmark"></i> Clear</a>
+            {% endif %}
+        </form>
+    </div>
+    
+    <!-- History Table Card -->
+    <div class="card history-table-card mt-30">
+        <div class="card-header border-bottom">
+            <h3><i class="fa-solid fa-database"></i> Database Records</h3>
+        </div>
+        
+        <div class="card-body padding-zero overflow-x">
+            {% if history %}
+                <table class="data-table" id="historyTable">
+                    <thead>
+                        <tr>
+                            <th>Record ID</th>
+                            <th>Date / Time</th>
+                            <th>Symptoms Analyzed</th>
+                            <th>Flagged Condition</th>
+                            <th>Confidence</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for record in history %}
+                            <tr id="row-{{ record.id }}">
+                                <td><strong>MPR-{{ record.id }}</strong></td>
+                                <td class="datetime-col">{{ record.created_at }}</td>
+                                <td class="symptoms-col text-ellipsis max-w-300" title="{{ record.symptoms }}">{{ record.symptoms }}</td>
+                                <td><span class="disease-tag">{{ record.predicted_disease.title() }}</span></td>
+                                <td>
+                                    <div class="confidence-indicator">
+                                        <div class="progress-bar-bg">
+                                            <div class="progress-bar-fill" style="width: {{ record.confidence_score * 100 if record.confidence_score <= 1.0 else record.confidence_score }}%"></div>
+                                        </div>
+                                        <span>{{ "%.1f"|format(record.confidence_score * 100) if record.confidence_score <= 1.0 else "%.1f"|format(record.confidence_score) }}%</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="table-actions">
+                                        <a href="{{ url_for('history.download_report', pred_id=record.id) }}" class="btn btn-outline btn-xs btn-primary" title="Download PDF Report"><i class="fa-solid fa-file-pdf"></i> Report</a>
+                                        <button type="button" onclick="confirmDelete('{{ record.id }}')" class="btn btn-outline btn-xs btn-danger" title="Delete Log Entry"><i class="fa-solid fa-trash-can"></i> Delete</button>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <div class="empty-state text-center mt-40 mb-40">
+                    <i class="fa-solid fa-file-invoice empty-icon"></i>
+                    {% if search %}
+                        <p class="empty-text">No records matched your search query: "<strong>{{ search }}</strong>".</p>
+                        <a href="{{ url_for('history.view_history') }}" class="btn btn-outline btn-sm">Clear Search Filter</a>
+                    {% else %}
+                        <p class="empty-text">No diagnostics recorded. Start a new screening to build your medical history.</p>
+                        <a href="{{ url_for('prediction.predict') }}" class="btn btn-primary btn-sm"><i class="fa-solid fa-stethoscope"></i> Check Symptoms</a>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function confirmDelete(id) {
+    if (confirm("Are you sure you want to permanently delete this prediction record from your history? This action cannot be undone.")) {
+        // Send AJAX delete request
+        fetch(`/history/${id}`, {
+            method: 'DELETE',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Remove row from table
+                const row = document.getElementById(`row-${id}`);
+                if (row) {
+                    row.classList.add('fade-out');
+                    setTimeout(() => {
+                        row.remove();
+                        // Check if table is empty
+                        const tableBody = document.querySelector("#historyTable tbody");
+                        if (tableBody && tableBody.children.length === 0) {
+                            location.reload(); // Reload to show empty state
+                        }
+                    }, 500);
+                }
+            } else {
+                alert(`Error: ${data.error || "Could not delete record"}`);
+            }
+        })
+        .catch(err => {
+            console.error("Error deleting record:", err);
+            alert("An error occurred. Please check network connection.");
+        });
+    }
+}
+</script>
+{% endblock %}

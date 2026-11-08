@@ -1,0 +1,112 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<div class="dashboard-wrapper container">
+    <!-- Welcome Header -->
+    <div class="dashboard-header card bg-gradient text-white">
+        <div class="header-info">
+            <span class="user-role-badge">{{ current_role.title() }} Portal</span>
+            <h1>Welcome Back, {{ current_username }}!</h1>
+            <p>Your diagnostic control center is active. Run a new symptom analysis, view your prediction logs, or generate clinical reports.</p>
+        </div>
+        <div class="header-actions">
+            <a href="{{ url_for('prediction.predict') }}" class="btn btn-secondary"><i class="fa-solid fa-stethoscope"></i> Start New Scan</a>
+        </div>
+    </div>
+    
+    <!-- Statistics Grid -->
+    <div class="stats-grid mt-30">
+        <div class="card stat-card border-left-primary">
+            <div class="stat-card-body">
+                <div class="stat-info">
+                    <span class="stat-label">Total Predictions</span>
+                    <h2 class="stat-value">{{ total_predictions }}</h2>
+                </div>
+                <div class="stat-icon text-primary">
+                    <i class="fa-solid fa-clipboard-list"></i>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card stat-card border-left-secondary">
+            <div class="stat-card-body">
+                <div class="stat-info">
+                    <span class="stat-label">Commonly Flagged Risk</span>
+                    <h2 class="stat-value text-ellipsis" style="font-size: 20px; max-width: 170px;" title="{{ frequent_disease.title() }}">{{ frequent_disease.title() }}</h2>
+                </div>
+                <div class="stat-icon text-secondary">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card stat-card border-left-success">
+            <div class="stat-card-body">
+                <div class="stat-info">
+                    <span class="stat-label">Latest Scan Condition</span>
+                    <h2 class="stat-value text-ellipsis" style="font-size: 20px; max-width: 170px;" title="{{ latest_prediction.predicted_disease.title() if latest_prediction else 'No Scans Yet' }}">
+                        {{ latest_prediction.predicted_disease.title() if latest_prediction else 'No Scans Yet' }}
+                    </h2>
+                </div>
+                <div class="stat-icon text-success">
+                    <i class="fa-solid fa-file-medical"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Recent Activity Table -->
+    <div class="dashboard-activity card mt-30">
+        <div class="card-header border-bottom">
+            <h3><i class="fa-solid fa-clock-rotate-left"></i> Recent Prediction Activity</h3>
+            <a href="{{ url_for('history.view_history') }}" class="view-all-link">View All History &rarr;</a>
+        </div>
+        
+        <div class="card-body padding-zero overflow-x">
+            {% if recent_predictions %}
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Date / Time</th>
+                            <th>Symptoms Evaluated</th>
+                            <th>Predicted Condition</th>
+                            <th>Confidence</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for pred in recent_predictions %}
+                            <tr>
+                                <td><strong>MPR-{{ pred.id }}</strong></td>
+                                <td>{{ pred.created_at }}</td>
+                                <td class="text-ellipsis max-w-250" title="{{ pred.symptoms }}">{{ pred.symptoms }}</td>
+                                <td><span class="disease-tag">{{ pred.predicted_disease.title() }}</span></td>
+                                <td>
+                                    <div class="confidence-indicator">
+                                        <div class="progress-bar-bg">
+                                            <div class="progress-bar-fill" style="width: {{ pred.confidence_score * 100 if pred.confidence_score <= 1.0 else pred.confidence_score }}%"></div>
+                                        </div>
+                                        <span>{{ "%.1f"|format(pred.confidence_score * 100) if pred.confidence_score <= 1.0 else "%.1f"|format(pred.confidence_score) }}%</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="table-actions">
+                                        <a href="{{ url_for('history.download_report', pred_id=pred.id) }}" class="btn btn-outline btn-xs" title="Download PDF Report"><i class="fa-solid fa-file-pdf"></i> PDF</a>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <div class="empty-state text-center mt-30 mb-30">
+                    <i class="fa-solid fa-folder-open empty-icon"></i>
+                    <p class="empty-text">You have not submitted any predictions yet.</p>
+                    <a href="{{ url_for('prediction.predict') }}" class="btn btn-primary btn-sm"><i class="fa-solid fa-stethoscope"></i> Analyze Symptoms Now</a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
